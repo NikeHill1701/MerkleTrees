@@ -2,6 +2,7 @@ import os
 import math
 import hashlib
 import queue
+import file_processing
 from MerkleNode import MerkleNode
 
 class MerkleTree:
@@ -38,7 +39,7 @@ class MerkleTree:
 
         return new_root
 
-    def construct_merkle_tree(self,data):
+    def construct_merkle_tree_helper(self,data):
         """
             A recursive function which creates a Merkle Tree by hashing the given data
             1 Merkle Node for 1 unit of data
@@ -54,14 +55,20 @@ class MerkleTree:
         if k == n:
             k = n // 2
 
-        merkle_root1 = self.construct_merkle_tree(data[:k])
-        merkle_root2 = self.construct_merkle_tree(data[k:n])
+        merkle_root1 = self.construct_merkle_tree_helper(data[:k])
+        merkle_root2 = self.construct_merkle_tree_helper(data[k:n])
 
         merkle_root = self.join_merkle_roots(merkle_root1, merkle_root2)
 
         self.merkle_root = merkle_root
 
         return merkle_root
+
+    def construct_merkle_tree(self, file_path, block_count = 128):
+
+        block_list = file_processing.divide_file_into_blocks(file_path, block_count)
+
+        return self.construct_merkle_tree_helper(block_list)
 
     def get_tree_illustration(self, root, n_tabs, prefix = ""):
         """
@@ -76,7 +83,7 @@ class MerkleTree:
         """
         if root == None:
             return
-            
+
         print(prefix[:-2], '|', end='')
         #print(prefix, end='')
         print("|--", root.get_hash_value())
@@ -95,7 +102,7 @@ def divide_file_into_blocks(file,block_size):
     with open(file, 'rb') as f:
         block = f.read(block_size)
         while block:
-            print("Block: ", block)
+    #        print("Block: ", block)
             block_list.append(block)
             block = f.read(block_size)
     
@@ -103,6 +110,7 @@ def divide_file_into_blocks(file,block_size):
 
 def bfs(root):
     """
+        My initial, not so efficient,  attempt to visualize the tree structure
         TODO: Write code to traverse the tree
         and print the hash values stored in each node in each level.
     """
@@ -127,17 +135,13 @@ def bfs(root):
         if curr.get_right_child() != None:
             q.put(curr.get_right_child())
     
-file_path = "/home/nikhil/Desktop/btp/basic.py"
-block_list = divide_file_into_blocks(file_path,50)
-
-print(len(block_list))
+file_path = "/home/nikhil/Desktop/btp/Paper_BlockSim-final.pdf"
+block_count = 256
 
 mTree = MerkleTree()
-merkle_root = mTree.construct_merkle_tree(block_list)
+merkle_root = mTree.construct_merkle_tree(file_path, block_count)
 
 print(merkle_root)
 print(mTree.count_merkle_nodes)
 
 mTree.get_tree_illustration(mTree.merkle_root, 0)
-
-#bfs(merkle_root)
