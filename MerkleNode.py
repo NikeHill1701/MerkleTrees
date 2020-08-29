@@ -9,8 +9,8 @@ class MerkleNode:
         self.right = None
         self.hash_value = ""
 
-    def set_hash_value(self,data):
-        self.hash_value = data
+    def set_hash_value(self,hash_value):
+        self.hash_value = hash_value
 
     def get_hash_value(self):
         return self.hash_value
@@ -19,7 +19,7 @@ class MerkleNode:
         return self.left
     
     def get_right_child(self):
-        return self.self
+        return self.right
     
     def get_parent(self):
         return self.parent
